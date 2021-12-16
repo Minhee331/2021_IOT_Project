@@ -1,4 +1,4 @@
-/*
+ /*
  *  This sketch demonstrates how to scan WiFi networks.
  *  The API is almost the same as with the WiFi Shield library,
  *  the most obvious difference being the different file you need to include:
@@ -81,89 +81,38 @@ void loop()
 {
   flag = 0;
   water_level = analogRead(respin);
-  if(water_level>1000){
+  
+  //개물통에 물이 비어있음
+  if(touchRead(4)>50){
+     if(water_level>1000){
    
-    Serial.println("모터 동작");
-  
-    digitalWrite(A1A, HIGH);
-    digitalWrite(A1B, LOW);
-    delay(5000);
-  
-    Serial.println("모터 멈춤");
-    digitalWrite(A1A, LOW);
-    digitalWrite(A1B, LOW);
-    delay(1000); 
-  
-    water_level = analogRead(respin);
-
-//    if(flag == 0){
-//        flag = 1;
-//        sprintf(payload,"{\"state\": {\"reported\": {\"pump\":%d}}}", water_level);
-//
-//        if(testButton.publish(pTOPIC_NAME,payload) == 0) {
-//          Serial.print("Publish Message:");
-//          Serial.println(payload);
-//        }
-//        else{
-//          Serial.println("Publish failed"); 
-//        }
-//      }
-    sprintf(payload,"{\"state\": {\"reported\": {\"pump\":%d}}}", water_level);
-
-    if(testButton.publish(pTOPIC_NAME,payload) == 0) {
-      Serial.print("Publish Message:");
-      Serial.println(payload);
-    }
-    else{
-      Serial.println("Publish failed"); 
-    }
+      Serial.println("모터 동작");
     
-    Serial.print("물의 높이 : ");
-    Serial.println(water_level);
-  
-    if(msgReceived == 1) {
-      msgReceived = 0;
-      Serial.print("Received Message:");
-      Serial.println(rcvdPayload);
-      // Parse JSON
-      JSONVar myObj = JSON.parse(rcvdPayload);
-      JSONVar state = myObj["state"];
-      Serial.println(myObj);
-  //        JSONVar desired = state["desired"];
-  //        String pump = (const char*) desired["pump"];
-  //        Serial.print("pump will be ");
-  //        Serial.println(pump);
-  //        if (pump == "ON"){
-  //          Serial.println("pump on");
-  ////          digitalWrite(ledPin, HIGH);
-  //        }
-  //        else if (pump == "OFF"){
-  //          Serial.println("pump off");
-  ////          digitalWrite(ledPin, LOW);
-  //        }
-    }
-  }
-  else {
-    while(water_level<=1000){
-      
-//      if(flag == 0){
-//        flag = 1;
-//        sprintf(payload,"{\"state\": {\"reported\": {\"pump\":%d}}}", water_level);
-//
-//        if(testButton.publish(pTOPIC_NAME,payload) == 0) {
-//          Serial.print("Publish Message:");
-//          Serial.println(payload);
-//        }
-//        else{
-//          Serial.println("Publish failed"); 
-//        }
-//      }
-      Serial.print("물을 채워주세요. ");
+      digitalWrite(A1A, HIGH);
+      digitalWrite(A1B, LOW);
+      delay(5000);
+    
+      Serial.println("모터 멈춤");
+      digitalWrite(A1A, LOW);
+      digitalWrite(A1B, LOW);
+      delay(1000); 
+    
       water_level = analogRead(respin);
-      Serial.print("물의 높이 : ");
-      Serial.println(water_level);
+  
+  //    if(flag == 0){
+  //        flag = 1;
+  //        sprintf(payload,"{\"state\": {\"reported\": {\"pump\":%d}}}", water_level);
+  //
+  //        if(testButton.publish(pTOPIC_NAME,payload) == 0) {
+  //          Serial.print("Publish Message:");
+  //          Serial.println(payload);
+  //        }
+  //        else{
+  //          Serial.println("Publish failed"); 
+  //        }
+  //      }
       sprintf(payload,"{\"state\": {\"reported\": {\"pump\":%d}}}", water_level);
-
+  
       if(testButton.publish(pTOPIC_NAME,payload) == 0) {
         Serial.print("Publish Message:");
         Serial.println(payload);
@@ -171,9 +120,168 @@ void loop()
       else{
         Serial.println("Publish failed"); 
       }
-      delay(3000);
-    } 
-  }
+      
+      Serial.print("물의 높이 : ");
+      Serial.println(water_level);
     
-  delay(3000);
+      if(msgReceived == 1) {
+        msgReceived = 0;
+        Serial.print("Received Message:");
+        Serial.println(rcvdPayload);
+        // Parse JSON
+        JSONVar myObj = JSON.parse(rcvdPayload);
+        JSONVar state = myObj["state"];
+        Serial.println(myObj);
+    //        JSONVar desired = state["desired"];
+    //        String pump = (const char*) desired["pump"];
+    //        Serial.print("pump will be ");
+    //        Serial.println(pump);
+    //        if (pump == "ON"){
+    //          Serial.println("pump on");
+    ////          digitalWrite(ledPin, HIGH);
+    //        }
+    //        else if (pump == "OFF"){
+    //          Serial.println("pump off");
+    ////          digitalWrite(ledPin, LOW);
+    //        }
+      }
+    }
+    else {
+      while(water_level<=1000){
+        if(touchRead(4)<=50){
+          break;
+        }
+  //      if(flag == 0){
+  //        flag = 1;
+  //        sprintf(payload,"{\"state\": {\"reported\": {\"pump\":%d}}}", water_level);
+  //
+  //        if(testButton.publish(pTOPIC_NAME,payload) == 0) {
+  //          Serial.print("Publish Message:");
+  //          Serial.println(payload);
+  //        }
+  //        else{
+  //          Serial.println("Publish failed"); 
+  //        }
+  //      }
+        Serial.print("물을 채워주세요. ");
+        water_level = analogRead(respin);
+        Serial.print("물의 높이 : ");
+        Serial.println(water_level);
+        sprintf(payload,"{\"state\": {\"reported\": {\"pump\":%d}}}", water_level);
+        Serial.println(touchRead(4));
+  
+        if(testButton.publish(pTOPIC_NAME,payload) == 0) {
+          Serial.print("Publish Message:");
+          Serial.println(payload);
+        }
+        else{
+          Serial.println("Publish failed"); 
+        }
+        delay(3000);
+      } 
+    }
+      
+    delay(3000);
+  }
+  //물이 차있음
+  else {
+    Serial.println("강아지의 물통에 물이 차있습니다.");
+  }
+ 
+//  if(water_level>1000){
+//   
+//    Serial.println("모터 동작");
+//  
+//    digitalWrite(A1A, HIGH);
+//    digitalWrite(A1B, LOW);
+//    delay(5000);
+//  
+//    Serial.println("모터 멈춤");
+//    digitalWrite(A1A, LOW);
+//    digitalWrite(A1B, LOW);
+//    delay(1000); 
+//  
+//    water_level = analogRead(respin);
+//
+////    if(flag == 0){
+////        flag = 1;
+////        sprintf(payload,"{\"state\": {\"reported\": {\"pump\":%d}}}", water_level);
+////
+////        if(testButton.publish(pTOPIC_NAME,payload) == 0) {
+////          Serial.print("Publish Message:");
+////          Serial.println(payload);
+////        }
+////        else{
+////          Serial.println("Publish failed"); 
+////        }
+////      }
+//    sprintf(payload,"{\"state\": {\"reported\": {\"pump\":%d}}}", water_level);
+//
+//    if(testButton.publish(pTOPIC_NAME,payload) == 0) {
+//      Serial.print("Publish Message:");
+//      Serial.println(payload);
+//    }
+//    else{
+//      Serial.println("Publish failed"); 
+//    }
+//    
+//    Serial.print("물의 높이 : ");
+//    Serial.println(water_level);
+//  
+//    if(msgReceived == 1) {
+//      msgReceived = 0;
+//      Serial.print("Received Message:");
+//      Serial.println(rcvdPayload);
+//      // Parse JSON
+//      JSONVar myObj = JSON.parse(rcvdPayload);
+//      JSONVar state = myObj["state"];
+//      Serial.println(myObj);
+//  //        JSONVar desired = state["desired"];
+//  //        String pump = (const char*) desired["pump"];
+//  //        Serial.print("pump will be ");
+//  //        Serial.println(pump);
+//  //        if (pump == "ON"){
+//  //          Serial.println("pump on");
+//  ////          digitalWrite(ledPin, HIGH);
+//  //        }
+//  //        else if (pump == "OFF"){
+//  //          Serial.println("pump off");
+//  ////          digitalWrite(ledPin, LOW);
+//  //        }
+//    }
+//  }
+//  else {
+//    while(water_level<=1000){
+//      
+////      if(flag == 0){
+////        flag = 1;
+////        sprintf(payload,"{\"state\": {\"reported\": {\"pump\":%d}}}", water_level);
+////
+////        if(testButton.publish(pTOPIC_NAME,payload) == 0) {
+////          Serial.print("Publish Message:");
+////          Serial.println(payload);
+////        }
+////        else{
+////          Serial.println("Publish failed"); 
+////        }
+////      }
+//      Serial.print("물을 채워주세요. ");
+//      water_level = analogRead(respin);
+//      Serial.print("물의 높이 : ");
+//      Serial.println(water_level);
+//      sprintf(payload,"{\"state\": {\"reported\": {\"pump\":%d}}}", water_level);
+//      Serial.println(touchRead(4));
+//
+//      if(testButton.publish(pTOPIC_NAME,payload) == 0) {
+//        Serial.print("Publish Message:");
+//        Serial.println(payload);
+//      }
+//      else{
+//        Serial.println("Publish failed"); 
+//      }
+//      delay(3000);
+//    } 
+//  }
+//    
+//  delay(3000);
 }
